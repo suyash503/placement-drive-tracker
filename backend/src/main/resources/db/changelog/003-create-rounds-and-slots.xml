@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Version 3: interview rounds per drive, and time slots per shortlisted student -->
+
+    <changeSet id="003-rounds" author="suyash">
+        <createTable tableName="rounds">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="drive_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_round_drive"
+                             references="drives(id)"/>
+            </column>
+            <column name="round_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="rounds"
+                             columnNames="drive_id, round_number"
+                             constraintName="uq_round_drive_number"/>
+    </changeSet>
+
+    <changeSet id="003-interview-slots" author="suyash">
+        <createTable tableName="interview_slots">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="round_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_slot_round"
+                             references="rounds(id)"/>
+            </column>
+            <column name="application_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_slot_application"
+                             references="applications(id)"/>
+            </column>
+            <column name="start_time" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="result" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!-- one slot per application per round -->
+        <addUniqueConstraint tableName="interview_slots"
+                             columnNames="round_id, application_id"
+                             constraintName="uq_slot_round_application"/>
+    </changeSet>
+</databaseChangeLog>

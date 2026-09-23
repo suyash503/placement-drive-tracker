@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+      Version 2: companies started asking "no active backlogs" / "max 1 backlog".
+      Instead of editing 001, we add a new changeset. Existing rows get default 0.
+    -->
+    <changeSet id="002-student-backlogs" author="suyash">
+        <addColumn tableName="students">
+            <column name="active_backlogs" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="002-drive-max-backlogs" author="suyash">
+        <addColumn tableName="drives">
+            <column name="max_backlogs" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

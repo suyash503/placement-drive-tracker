@@ -1,0 +1,23 @@
+# backend
+backend/.gradle/
+backend/build/
+backend/.micronaut/
+backend/.kotlin/
+
+# frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+*.tsbuildinfo
+
+# env files
+.env
+.env.local
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Master changelog. Every schema change is a NEW file added at the bottom.
+  Never edit a changeset that already ran - Liquibase stores a checksum of it.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="changelog/001-create-core-tables.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/002-add-backlog-rules.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/003-create-rounds-and-slots.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/004-demo-data.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

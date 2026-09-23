@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.placement
+testFramework: junit
+sourceLanguage: kotlin
+buildTool: gradle_kotlin
+features: [app-name, data, data-jpa, gradle, http-client-test, jdbc-hikari, jul-to-slf4j, junit, kotlin, kotlin-application, ksp, liquibase, logback, management, micronaut-aot, micronaut-build, micronaut-configuration-validation-gradle-plugin, micronaut-http-validation, mysql, netty-server, openapi, properties, readme, serialization-jackson, shade, static-resources, swagger-ui, testcontainers, validation]

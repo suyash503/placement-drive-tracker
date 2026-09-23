@@ -1,0 +1,48 @@
+# Runs the whole app on your laptop:  docker compose up --build
+#   Frontend  -> http://localhost:3000
+#   Backend   -> http://localhost:8080/swagger-ui
+#   MySQL     -> localhost:3306 (user: placement / password: placement)
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: placement
+      MYSQL_USER: placement
+      MYSQL_PASSWORD: placement
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/placement
+      DB_USER: placement
+      DB_PASSWORD: placement
+      LIQUIBASE_CONTEXTS: demo
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        BACKEND_URL: http://backend:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:

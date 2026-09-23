@@ -1,0 +1,19 @@
+# Apply everything with:  kubectl apply -k k8s/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - mysql.yaml
+  - backend.yaml
+  - frontend.yaml
+  - ingress.yaml
+
+# The deploy workflow runs "kustomize edit set image" to point these at the pushed images
+images:
+  - name: backend-image
+    newName: asia-south1-docker.pkg.dev/YOUR_PROJECT_ID/placement/backend
+    newTag: latest
+  - name: frontend-image
+    newName: asia-south1-docker.pkg.dev/YOUR_PROJECT_ID/placement/frontend
+    newTag: latest

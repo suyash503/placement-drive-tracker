@@ -1,0 +1,28 @@
+# On GKE this creates a Google Cloud HTTP(S) Load Balancer with a public IP.
+# /api/*  -> Kotlin backend
+# /*      -> Next.js frontend
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: placement-ingress
+  namespace: placement
+  annotations:
+    kubernetes.io/ingress.class: gce
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000

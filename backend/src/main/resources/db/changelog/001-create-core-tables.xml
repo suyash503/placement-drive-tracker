@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Version 1: companies, students, drives and applications -->
+
+    <changeSet id="001-companies" author="suyash">
+        <createTable tableName="companies">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="industry" type="VARCHAR(100)"/>
+            <column name="website" type="VARCHAR(255)"/>
+            <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-students" author="suyash">
+        <createTable tableName="students">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="roll_no" type="VARCHAR(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="branch" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cgpa" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="graduation_year" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="001-drives" author="suyash">
+        <createTable tableName="drives">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_drive_company"
+                             references="companies(id)"/>
+            </column>
+            <column name="job_role" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ctc_lpa" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="drive_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min_cgpa" type="DOUBLE" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" defaultValue="OPEN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- One drive can allow many branches (CSE, IT, ECE...) -->
+        <createTable tableName="drive_branches">
+            <column name="drive_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_drive_branches_drive"
+                             references="drives(id)"
+                             deleteCascade="true"/>
+            </column>
+            <column name="branch" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="drive_branches" columnNames="drive_id, branch"/>
+    </changeSet>
+
+    <changeSet id="001-applications" author="suyash">
+        <createTable tableName="applications">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="student_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_application_student"
+                             references="students(id)"/>
+            </column>
+            <column name="drive_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_application_drive"
+                             references="drives(id)"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" defaultValue="APPLIED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="applied_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!-- A student can apply to a drive only once -->
+        <addUniqueConstraint tableName="applications"
+                             columnNames="student_id, drive_id"
+                             constraintName="uq_application_student_drive"/>
+    </changeSet>
+</databaseChangeLog>

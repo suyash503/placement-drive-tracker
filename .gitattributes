@@ -1,0 +1,4 @@
+# keep Linux line endings for shell scripts, otherwise ./gradlew breaks inside Docker/CI
+gradlew text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf

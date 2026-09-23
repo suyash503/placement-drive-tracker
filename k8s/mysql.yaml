@@ -1,0 +1,75 @@
+# MySQL inside the cluster - fine for a demo project.
+# For real production on GCP you would use Cloud SQL instead (see README).
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  namespace: placement
+type: Opaque
+stringData:
+  # change these before deploying anywhere public!
+  MYSQL_ROOT_PASSWORD: change-me-root
+  MYSQL_DATABASE: placement
+  MYSQL_USER: placement
+  MYSQL_PASSWORD: change-me
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: placement
+spec:
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+  clusterIP: None # "headless" service, used by the StatefulSet
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: placement
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.4
+          envFrom:
+            - secretRef:
+                name: db-secret
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+  # each MySQL pod gets its own persistent disk (a GCE persistent disk on GKE)
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi

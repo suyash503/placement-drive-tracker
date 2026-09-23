@@ -1,0 +1,48 @@
+# Manual deploy to Google Kubernetes Engine (Actions tab -> "Deploy to GKE" -> Run workflow).
+#
+# One-time setup (see README "Deploying to GKE"):
+#   repository variables: GCP_PROJECT_ID, GKE_CLUSTER, GKE_REGION
+#   repository secret:    GCP_SA_KEY  (JSON key of a service account with
+#                         Artifact Registry Writer + Kubernetes Engine Developer roles)
+name: Deploy to GKE
+
+on:
+  workflow_dispatch:
+
+env:
+  REGION: ${{ vars.GKE_REGION }}
+  REGISTRY: ${{ vars.GKE_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/placement
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push images to Artifact Registry
+        run: |
+          gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+          docker build -t $REGISTRY/backend:${{ github.sha }} ./backend
+          docker build -t $REGISTRY/frontend:${{ github.sha }} ./frontend
+          docker push $REGISTRY/backend:${{ github.sha }}
+          docker push $REGISTRY/frontend:${{ github.sha }}
+
+      - uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ vars.GKE_CLUSTER }}
+          location: ${{ vars.GKE_REGION }}
+
+      - name: Deploy with kustomize
+        working-directory: k8s
+        run: |
+          kustomize edit set image backend-image=$REGISTRY/backend:${{ github.sha }}
+          kustomize edit set image frontend-image=$REGISTRY/frontend:${{ github.sha }}
+          kubectl apply -k .
+          kubectl -n placement rollout status deployment/backend --timeout=300s
+          kubectl -n placement rollout status deployment/frontend --timeout=300s
