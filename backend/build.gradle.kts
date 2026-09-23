@@ -11,7 +11,6 @@ plugins {
 version = "0.1"
 group = "com.placement"
 
-
 val kotlinVersion=project.properties.get("kotlinVersion")
 
 repositories {
@@ -48,8 +47,6 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-
-
 application {
     mainClass = "com.placement.ApplicationKt"
 }
@@ -57,21 +54,6 @@ application {
 java {
     sourceCompatibility = JavaVersion.toVersion("25")
 }
-
-
-
-
-graalvmNative.toolchainDetection = false
-graalvmNative {
-    binaries {
-        all {
-            buildArgs.add("-H:+SharedArenaSupport")
-        }
-    }
-}
-
-
-
 
 micronaut {
     runtime("netty")
@@ -95,28 +77,10 @@ micronaut {
 
 }
 
-tasks.named<io.micronaut.gradle.docker.MicronautDockerfile>("dockerfile") {
-
-    baseImage = "eclipse-temurin:25-jre"
-}
-
-
-
-tasks.named<io.micronaut.gradle.docker.NativeImageDockerfile>("dockerfileNative") {
-    jdkVersion = "25"
-}
-
-
-
-
-
 // https://docs.gradle.org/current/userguide/upgrading_major_version_9.html#test_task_fails_when_no_tests_are_discovered
 tasks.withType<AbstractTestTask>().configureEach {
     failOnNoDiscoveredTests = false
 }
-
-
-
 
 kotlin {
     jvmToolchain(25)
