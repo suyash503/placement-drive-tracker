@@ -52,7 +52,7 @@ open class InterviewService(
 
         // check every other slot of this student for a time clash
         val studentId = application.student!!.id!!
-        for (other in slotRepository.findByApplicationStudentId(studentId)) {
+        for (other in slotRepository.findAllForStudent(studentId)) {
             // two time ranges overlap when each one starts before the other ends
             val overlaps = request.startTime.isBefore(other.endTime) && other.startTime.isBefore(request.endTime)
             if (overlaps) {
